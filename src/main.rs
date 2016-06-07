@@ -12,12 +12,18 @@ fn main() {
     use glium::{DisplayBuild, Surface};
     let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
 
+    let mut t: f32 = -0.5;
     loop {
 
+      t += 0.001;
+        if t > 0.5 {
+            t = -0.5;
+        }
 
-        let vertex1 = Vertex { position: [-0.5, -0.5] };
-        let vertex2 = Vertex { position: [0.0, 0.5] };
-        let vertex3 = Vertex { position: [0.5, -0.25] };
+
+        let vertex1 = Vertex { position: [-0.5 + t, -0.5] };
+        let vertex2 = Vertex { position: [0.0 + t, 0.5] };
+        let vertex3 = Vertex { position: [0.5 + t, -0.25] };
         let shape = vec![vertex1, vertex2, vertex3];
 
         let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
