@@ -21,8 +21,16 @@ fn main() {
 
         void main() {
             vec2 pos = position;
-            pos.x += t;
+            // Scale
+            // pos.x *= t;
+            // pos.y *= t;
+
+            // Rotate:
+            // pos = vec2(pos.x * cos(t)  - pos.y * sin(t), pos.x * sin(t) + pos.y * cos(t));
             gl_Position = vec4(pos, 0.0, 1.0);
+
+            //Skew
+            pos.x += pos.y * t;
         }
     "#;
 
@@ -46,7 +54,7 @@ fn main() {
     let mut t: f32 = -0.5;
     loop {
 
-        t += 0.001;
+        t += 0.01;
         if t > 0.5 {
             t = -0.5;
         }
