@@ -26,11 +26,11 @@ fn main() {
             // pos.y *= t;
 
             // Rotate:
-            // pos = vec2(pos.x * cos(t)  - pos.y * sin(t), pos.x * sin(t) + pos.y * cos(t));
-            gl_Position = vec4(pos, 0.0, 1.0);
+            //pos = vec2(pos.x * cos(t)  - pos.y * sin(t), pos.x * sin(t) + pos.y * cos(t));
 
             //Skew
             pos.x += pos.y * t;
+            gl_Position = vec4(pos, 0.0, 1.0);
         }
     "#;
 
