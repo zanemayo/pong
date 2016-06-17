@@ -5,3 +5,4 @@ authors = ["zane"]
 
 [dependencies]
 glium = "*"
+image = "*"
