@@ -8,18 +8,21 @@ struct Vertex {
     tex_coords: [f32; 2]
 }
 
-fn init() {
-    implement_vertex!(Vertex, position, tex_coords);
-}
-
-fn load_image(name: &str) -> glium::texture::RawImage2d<u8> {
-    let image = image::load(std::io::Cursor::new(&include_bytes!("assets/texture.png")[..]), image::PNG).unwrap().to_rgba();
+fn main() {
+    use std::io::Cursor;
+    let image = image::load(Cursor::new(&include_bytes!("assets/texture.png")[..]), image::PNG).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
-    glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions)
-}
+    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
 
-fn get_vertex_shader() -> &'static str {
-    r#"
+
+    implement_vertex!(Vertex, position, tex_coords);
+
+    use glium::{DisplayBuild, Surface};
+    let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
+
+    let texture = glium::texture::Texture2d::new(&display, image).unwrap();
+
+    let vertex_shader_src = r#"
         #version 140
 
         in vec2 position;
@@ -36,11 +39,9 @@ fn get_vertex_shader() -> &'static str {
             my_attr[0] = gl_Position[0];
             my_attr[1] = gl_Position[1];
         }
-    "#
-}
+    "#;
 
-fn get_fragment_shader() -> &'static str {
-    r#"
+    let fragment_shader_src = r#"
         #version 140
 
         in vec2 my_attr;
@@ -53,34 +54,16 @@ fn get_fragment_shader() -> &'static str {
              // color = vec4(my_attr, 0.0, 1.0);
              color = texture(tex, v_tex_coords);
         }
-    "#
-}
-
-// pub use glutin_backend::GlutinFacade as Display;
-fn load_texture(textureFilename: &str, display: &glium::glutin::GlutinFacade) -> glium::texture::Texture2d {
-    let image = load_image("texture.png");
-    glium::texture::Texture2d::new(&display, image).unwrap()
-}
-
-fn main() {
-
-    use glium::{DisplayBuild, Surface};
-    let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
-
-    let texture = load_texture("texture.png", &display);
-
-    let vertex_shader_src = get_vertex_shader();
-
-    let fragment_shader_src = get_fragment_shader();
+    "#;
 
     let vertex1 = Vertex { position: [-0.5, -0.5] , tex_coords: [0.0, 0.0]};
     let vertex2 = Vertex { position: [0.0, 0.5], tex_coords: [0.0, 1.0] };
     let vertex3 = Vertex { position: [0.5, -0.25], tex_coords: [1.0, 0.0] };
     let shape = vec![vertex1, vertex2, vertex3];
 
-
+    
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
-
+    
     let mut t: f32 = -0.5;
     loop {
 
@@ -96,7 +79,7 @@ fn main() {
 
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
-
+        
         let uniforms = uniform! {
             matrix: [
                 [t.cos(), t.sin(), 0.0, 0.0],
